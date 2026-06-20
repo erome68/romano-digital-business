@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Freelance Client Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --cream: #f5f0e8;
+    --warm: #e8dfc8;
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --rust: #b85c38;
+    --sage: #4a6741;
+    --muted: #7a7060;
+    --card: #faf7f2;
+    --border: #d8cdb8;
+    --tag-bg: #efe8d8;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Instrument Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 60px 40px 50px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '✦';
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 120px;
+    color: var(--gold);
+    opacity: 0.12;
+    animation: spin 20s linear infinite;
+  }
+
+  @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+
+  .header-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: -1px;
+    max-width: 700px;
+  }
+
+  header h1 em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .header-sub {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #a09880;
+    max-width: 500px;
+    line-height: 1.6;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 36px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--gold-light);
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #6a6050;
+  }
+
+  /* CONTROLS */
+  .controls {
+    background: var(--ink);
+    border-top: 1px solid #2a2820;
+    padding: 20px 40px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6a6050;
+    width: 16px;
+    height: 16px;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    background: #1a1912;
+    border: 1px solid #3a3828;
+    color: var(--cream);
+    padding: 10px 14px 10px 40px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]::placeholder { color: #4a4838; }
+  input[type="text"]:focus { border-color: var(--gold); }
+
+  .filter-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border: 1px solid #3a3828;
+    background: transparent;
+    color: #6a6050;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .tab:hover { border-color: var(--gold); color: var(--gold); }
+  .tab.active { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: 500; }
+
+  /* MAIN GRID */
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 48px 40px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .section-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .section-icon {
+    font-size: 20px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+    margin-bottom: 56px;
+  }
+
+  /* TEMPLATE CARD */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    border-color: var(--gold);
+  }
+
+  .card-header {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .card-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    background: var(--tag-bg);
+    border-radius: 2px;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .card-preview {
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #4a4030;
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    white-space: pre-line;
+    position: relative;
+    max-height: 140px;
+    overflow: hidden;
+  }
+
+  .card-preview::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 50px;
+    background: linear-gradient(transparent, var(--card));
+  }
+
+  .card-footer {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+  }
+
+  .card-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  .copy-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    background: var(--ink);
+    color: var(--cream);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:hover { background: var(--gold); color: var(--ink); }
+  .copy-btn.copied { background: var(--sage); color: white; }
+
+  /* MODAL */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,14,12,0.85);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-backdrop.open { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    max-width: 680px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideUp 0.25s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-header {
+    padding: 28px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    z-index: 2;
+  }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .modal-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    background: var(--tag-bg);
+    border-radius: 2px;
+    color: var(--muted);
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--muted);
+    line-height: 1;
+    flex-shrink: 0;
+    padding: 2px;
+  }
+
+  .modal-close:hover { color: var(--ink); }
+
+  .modal-body {
+    padding: 24px 28px;
+  }
+
+  .modal-when {
+    background: var(--warm);
+    border-left: 3px solid var(--gold);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #5a5040;
+    border-radius: 0 4px 4px 0;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .modal-when strong {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+    color: var(--gold);
+  }
+
+  .template-text {
+    background: #fdf9f2;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.75;
+    color: #2a2018;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+  }
+
+  .template-text .placeholder {
+    background: #fde68a;
+    padding: 1px 4px;
+    border-radius: 2px;
+    color: #78350f;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-primary {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    background: var(--ink);
+    color: var(--cream);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+  }
+
+  .btn-primary:hover { background: var(--gold); color: var(--ink); }
+  .btn-primary.copied { background: var(--sage); color: white; }
+
+  .btn-secondary {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 12px 20px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 80px 40px;
+    color: var(--muted);
+  }
+
+  .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 8px; color: var(--ink); }
+  .empty p { font-size: 14px; }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink);
+    color: #4a4838;
+    padding: 32px 40px;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  footer span { color: var(--gold); }
+
+  /* SECTION GROUP */
+  .section-group { display: none; }
+  .section-group.visible { display: block; }
+
+  /* AI PROMPTS SECTION */
+  .prompts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 56px;
+  }
+
+  .prompt-card {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 6px;
+    padding: 20px;
+    border: 1px solid #2a2820;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+  }
+
+  .prompt-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+
+  .prompt-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: #2a2820;
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+
+  .prompt-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-bottom: 8px;
+    font-family: 'Instrument Sans', sans-serif;
+  }
+
+  .prompt-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: #8a8070;
+    line-height: 1.6;
+  }
+
+  .prompt-copy {
+    margin-top: 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    background: transparent;
+    color: #6a6050;
+    border: 1px solid #3a3828;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .prompt-copy:hover { border-color: var(--gold); color: var(--gold); }
+  .prompt-copy.copied { border-color: var(--sage); color: var(--sage); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--sage);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    z-index: 9998;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  @media (max-width: 768px) {
+    header, .controls, main, footer { padding-left: 20px; padding-right: 20px; }
+    .grid { grid-template-columns: 1fr; }
+    .prompts-grid { grid-template-columns: 1fr; }
+    header h1 { font-size: 36px; }
+    header::after { display: none; }
+    .header-stats { gap: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-eyebrow">✦ The Freelance Client Vault ✦</div>
+  <h1>Every Email<br>You'll <em>Ever</em> Need</h1>
+  <p class="header-sub">39 copy-paste templates + 20 AI prompts. Write once, win forever. Built for freelancers who hate writing emails from scratch.</p>
+  <div class="header-stats">
+    <div class="stat"><span class="stat-num">39</span><span class="stat-label">Templates</span></div>
+    <div class="stat"><span class="stat-num">20</span><span class="stat-label">AI Prompts</span></div>
+    <div class="stat"><span class="stat-num">6</span><span class="stat-label">Categories</span></div>
+    <div class="stat"><span class="stat-num">5h</span><span class="stat-label">Saved / Week</span></div>
+  </div>
+</header>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="search-wrap">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="search" placeholder="Search templates..." oninput="filterTemplates()">
+  </div>
+  <div class="filter-tabs">
+    <button class="tab active" onclick="filterByCategory('all', this)">All</button>
+    <button class="tab" onclick="filterByCategory('cold', this)">🎯 Cold Outreach</button>
+    <button class="tab" onclick="filterByCategory('proposal', this)">📋 Proposals</button>
+    <button class="tab" onclick="filterByCategory('followup', this)">🔁 Follow-ups</button>
+    <button class="tab" onclick="filterByCategory('scope', this)">🚧 Scope Creep</button>
+    <button class="tab" onclick="filterByCategory('invoice', this)">💰 Invoices</button>
+    <button class="tab" onclick="filterByCategory('closeout', this)">✅ Closeout</button>
+    <button class="tab" onclick="filterByCategory('prompts', this)">🤖 AI Prompts</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main id="main-content">
+
+  <!-- COLD OUTREACH -->
+  <div class="section-group visible" data-section="cold" id="section-cold">
+    <div class="section-header">
+      <span class="section-icon">🎯</span>
+      <h2 class="section-title">Cold Outreach</h2>
+      <span class="section-count">10 templates</span>
+    </div>
+    <div class="grid" id="grid-cold"></div>
+  </div>
+
+  <!-- PROPOSALS -->
+  <div class="section-group visible" data-section="proposal" id="section-proposal">
+    <div class="section-header">
+      <span class="section-icon">📋</span>
+      <h2 class="section-title">Proposals</h2>
+      <span class="section-count">8 templates</span>
+    </div>
+    <div class="grid" id="grid-proposal"></div>
+  </div>
+
+  <!-- FOLLOW-UPS -->
+  <div class="section-group visible" data-section="followup" id="section-followup">
+    <div class="section-header">
+      <span class="section-icon">🔁</span>
+      <h2 class="section-title">Follow-ups</h2>
+      <span class="section-count">6 templates</span>
+    </div>
+    <div class="grid" id="grid-followup"></div>
+  </div>
+
+  <!-- SCOPE CREEP -->
+  <div class="section-group visible" data-section="scope" id="section-scope">
+    <div class="section-header">
+      <span class="section-icon">🚧</span>
+      <h2 class="section-title">Scope Creep</h2>
+      <span class="section-count">5 templates</span>
+    </div>
+    <div class="grid" id="grid-scope"></div>
+  </div>
+
+  <!-- INVOICES -->
+  <div class="section-group visible" data-section="invoice" id="section-invoice">
+    <div class="section-header">
+      <span class="section-icon">💰</span>
+      <h2 class="section-title">Invoice & Payment</h2>
+      <span class="section-count">6 templates</span>
+    </div>
+    <div class="grid" id="grid-invoice"></div>
+  </div>
+
+  <!-- CLOSEOUT -->
+  <div class="section-group visible" data-section="closeout" id="section-closeout">
+    <div class="section-header">
+      <span class="section-icon">✅</span>
+      <h2 class="section-title">Project Closeout</h2>
+      <span class="section-count">4 templates</span>
+    </div>
+    <div class="grid" id="grid-closeout"></div>
+  </div>
+
+  <!-- AI PROMPTS -->
+  <div class="section-group visible" data-section="prompts" id="section-prompts">
+    <div class="section-header">
+      <span class="section-icon">🤖</span>
+      <h2 class="section-title">AI Prompt Pack</h2>
+      <span class="section-count">20 prompts · paste into ChatGPT or Claude</span>
+    </div>
+    <div class="prompts-grid" id="grid-prompts"></div>
+  </div>
+
+  <div class="empty" id="empty-state" style="display:none">
+    <div class="empty-icon">✦</div>
+    <h3>No templates found</h3>
+    <p>Try a different search term or category.</p>
+  </div>
+
+</main>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-inner">
+    <div class="modal-header">
+      <div>
+        <div class="modal-tag" id="modal-tag"></div>
+        <div class="modal-title" id="modal-title" style="margin-top:8px"></div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-when"><strong>Use when</strong><span id="modal-when"></span></div>
+      <div class="template-text" id="modal-body-text"></div>
+      <div class="modal-actions">
+        <button class="btn-primary" id="modal-copy-btn" onclick="copyFromModal()">Copy Template</button>
+        <button class="btn-secondary" onclick="closeModalDirect()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ Copied to clipboard!</div>
+
+<footer>
+  <span>The Freelance Client Vault</span> · 39 Templates · 20 AI Prompts · Built to sell passively
+</footer>
+
+<script>
+const TEMPLATES = {
+  cold: [
+    {
+      title: "The Specific Compliment Opener",
+      tag: "Cold Outreach",
+      when: "You've done your research on the prospect and want to open with something personal, not generic.",
+      preview: "Hi [Name],\n\nI came across your work on [specific project/campaign] and thought the way you [specific detail] was genuinely clever...",
+      body: `Hi [Name],
+
+I came across your work on [specific project/campaign] and thought the way you [specific detail] was genuinely clever.
+
+I'm [Your Name], a freelance [your specialty] who works with [type of clients]. I help [them do X result] — recently I [quick proof point, e.g., "helped a SaaS founder increase demo bookings by 40% through a redesigned homepage"].
+
+I have an idea for how I might be able to [specific value for their business]. Would a 15-minute call this week make sense?
+
+[Your name]`
+    },
+    {
+      title: "The Referral Drop",
+      tag: "Cold Outreach",
+      when: "Someone in your network mentioned the prospect or you share a mutual connection.",
+      preview: "Hi [Name],\n\n[Mutual contact] mentioned your name when I told them I was looking to connect with [type of company/role]...",
+      body: `Hi [Name],
+
+[Mutual contact] mentioned your name when I told them I was looking to connect with [type of company]. They spoke highly of what you're building at [Company].
+
+I'm a freelance [specialty] and I noticed you're [specific observation about their business — hiring, launching, expanding]. I've helped similar teams [result] without the overhead of a full-time hire.
+
+Would it be worth a quick call to see if there's a fit?
+
+[Your name]`
+    },
+    {
+      title: "The Problem-First Cold Pitch",
+      tag: "Cold Outreach",
+      when: "You've spotted a clear gap or problem on their website/social media you can solve.",
+      preview: "Hi [Name],\n\nI was browsing [their website/account] and noticed [specific problem — slow load time, unclear messaging, no email sequence]...",
+      body: `Hi [Name],
+
+I was on your website and noticed [specific problem — e.g., "your service page doesn't have a clear call to action" or "your email sequence ends after the welcome email"].
+
+I'm [Your Name], a freelance [specialty]. I solve exactly this for [type of client] — and it typically results in [outcome like "more inquiry conversions" or "higher open rates"].
+
+I put together a quick [2-minute Loom / one-page doc] showing what I'd change. Want me to send it over?
+
+[Your name]`
+    },
+    {
+      title: "The Social Proof Hook",
+      tag: "Cold Outreach",
+      when: "You have a strong case study or result that's directly relevant to this prospect's niche.",
+      preview: "Hi [Name],\n\nI recently helped [similar company] go from [X] to [Y] in [timeframe]. I think I can do the same for you...",
+      body: `Hi [Name],
+
+Quick one: I recently helped [similar company in their niche] go from [before state] to [after state] in [timeframe].
+
+The approach was simple: [one sentence summary of what you did].
+
+I think there's a similar opportunity at [their company] — especially with [specific thing you noticed]. I work on a freelance basis so there's no long-term commitment.
+
+Is this something worth exploring? Happy to share the full case study.
+
+[Your name]`
+    },
+    {
+      title: "The Job Posting Alternative",
+      tag: "Cold Outreach",
+      when: "They posted a job listing for a role you could fill as a freelancer instead.",
+      preview: "Hi [Name],\n\nI saw you're hiring a [role]. Before you commit to a full-time salary, I wanted to reach out...",
+      body: `Hi [Name],
+
+I saw you're hiring a [full-time role] on [platform]. Before you commit to a full-time salary + benefits, I wanted to reach out.
+
+I'm a freelance [equivalent role] and I've been doing exactly this work for [X years] with clients like [2 examples]. I can start immediately, no onboarding lag, and you only pay for results.
+
+Would you consider talking to a freelancer first? It could save you [months of hiring time / $X in overhead].
+
+[Your name]`
+    },
+    {
+      title: "The Content Callback",
+      tag: "Cold Outreach",
+      when: "They posted something on LinkedIn, Twitter, or a podcast that you genuinely engaged with.",
+      preview: "Hi [Name],\n\nYour post about [topic] stuck with me — specifically the part about [specific detail]...",
+      body: `Hi [Name],
+
+Your post about [topic] stuck with me — specifically the part about [specific detail you found insightful].
+
+It's exactly the kind of thinking I see in founders who [are scaling / care about quality / think long-term].
+
+I'm a freelance [specialty] and I work specifically with [type of client like them]. I help with [what you do] and I'd love to see if there's a way I could add value to what you're building.
+
+Worth a 15-minute chat?
+
+[Your name]`
+    },
+    {
+      title: "The Agency Overflow Pitch",
+      tag: "Cold Outreach",
+      when: "Reaching out to agencies who might need extra capacity on projects.",
+      preview: "Hi [Name],\n\nI noticed your agency does a lot of [service]. I reach out to agencies like yours because overflow work is often the biggest headache...",
+      body: `Hi [Name],
+
+I've been following [Agency Name] for a while — your work on [project or client] is impressive.
+
+I reach out to agencies specifically because overflow capacity is often the biggest operational headache. When you're slammed, having a trusted freelancer ready to jump in without a learning curve can make or break a deadline.
+
+I specialize in [your specialty] and I've subcontracted for [type of agencies] before. I'm easy to work with, I meet deadlines, and I make your team look good.
+
+Would it be useful to get on your roster for the next time capacity gets tight?
+
+[Your name]`
+    },
+    {
+      title: "The Short & Direct",
+      tag: "Cold Outreach",
+      when: "You want a fast, no-fluff email that respects their time. Works especially well for busy founders.",
+      preview: "Hi [Name],\n\nI help [type of business] with [problem]. I think I can help [their company] with [specific thing]...",
+      body: `Hi [Name],
+
+I help [type of business] with [specific problem you solve].
+
+Looking at [their company], I think there's an opportunity around [specific thing].
+
+I've done this for [2 relevant clients]. Takes [timeframe] and the typical result is [outcome].
+
+Worth a quick call?
+
+[Your name]`
+    },
+    {
+      title: "The Warm Re-engagement",
+      tag: "Cold Outreach",
+      when: "You've met this person before (event, online, past conversation) but never worked together.",
+      preview: "Hi [Name],\n\nWe connected at [event/online] back in [timeframe]. Not sure if you remember — I was the [detail]...",
+      body: `Hi [Name],
+
+We connected at [event / on LinkedIn] back in [month/year] — I was the one [brief memorable detail, e.g., "asking about your pricing strategy"].
+
+I've been following what you've been building since then and [specific thing that's impressed you].
+
+I wanted to reach back out because I've been doing a lot of work in [relevant area] and thought there might be something worth exploring together. 
+
+Would you be open to catching up for 15 minutes?
+
+[Your name]`
+    },
+    {
+      title: "The Value-First Loom Pitch",
+      tag: "Cold Outreach",
+      when: "You want to stand out dramatically by leading with a free mini-audit recorded as a Loom video.",
+      preview: "Hi [Name],\n\nI recorded a 3-minute Loom for you. No pitch — just a few observations about [their site/content/funnel]...",
+      body: `Hi [Name],
+
+I recorded a 3-minute video for you: [Loom link]
+
+No pitch — just a few observations about [their website / email sequence / social content] that I think could be working harder for you.
+
+I'm a freelance [specialty]. I do this for a handful of companies I'm genuinely interested in. If the video is useful and you'd like help implementing any of it, I'm happy to talk. If not, no worries — consider it a gift.
+
+[Your name]`
+    }
+  ],
+
+  proposal: [
+    {
+      title: "The Confident Project Proposal",
+      tag: "Proposal",
+      when: "Following a discovery call, sending your official proposal and price.",
+      preview: "Hi [Name],\n\nGreat speaking with you on [day]. Here's a summary of what we discussed and how I'd approach this...",
+      body: `Hi [Name],
+
+Great speaking with you on [day]. Here's my proposal based on what we discussed.
+
+PROJECT OVERVIEW
+[One paragraph summarizing the problem they need solved and the goal]
+
+WHAT I'LL DELIVER
+— [Deliverable 1]
+— [Deliverable 2]
+— [Deliverable 3]
+
+TIMELINE
+[Week 1]: [Milestone]
+[Week 2]: [Milestone]
+[Week 3]: Final delivery + revisions
+
+INVESTMENT
+[Project name]: $[amount]
+Includes [X revisions / specific scope boundaries].
+
+50% deposit to begin, 50% on final delivery.
+
+HOW TO MOVE FORWARD
+Reply with "let's go" or any questions and I'll send the contract within 24 hours.
+
+[Your name]`
+    },
+    {
+      title: "The Options Proposal",
+      tag: "Proposal",
+      when: "You want to give the client 2-3 tiers so they can self-select budget and scope.",
+      preview: "Hi [Name],\n\nBased on our call, I've put together three options. Most clients pick the middle one, but all three deliver solid results...",
+      body: `Hi [Name],
+
+Based on our conversation, here are three ways we could work together:
+
+OPTION A — ESSENTIALS · $[price]
+[Brief scope: what's included at the lowest tier]
+Ideal if: [situation]
+
+OPTION B — COMPLETE · $[price] ✦ Most Popular
+[Brief scope: the full recommended engagement]
+Ideal if: [situation]
+
+OPTION C — PREMIUM · $[price]
+[Brief scope: everything plus extras like strategy, rush, etc.]
+Ideal if: [situation]
+
+All options include [shared benefit — e.g., 2 revision rounds, 30-day support].
+
+Which direction feels right? I can answer any questions or customize further.
+
+[Your name]`
+    },
+    {
+      title: "The ROI-Framed Proposal",
+      tag: "Proposal",
+      when: "Selling to a business owner who thinks in terms of investment and return.",
+      preview: "Hi [Name],\n\nHere's the proposal. I want to frame the investment with some context on what it's typically worth...",
+      body: `Hi [Name],
+
+Here's the proposal — and a quick note on framing before you scroll to the number.
+
+For clients similar to [their company], this type of [project] has generated [specific outcome — e.g., "an additional $8K–$20K in monthly revenue" or "30% lower client acquisition cost"]. The work pays for itself quickly when done well.
+
+SCOPE
+[Detailed scope bullets]
+
+TIMELINE
+[Dates and milestones]
+
+INVESTMENT: $[amount]
+
+This is a fixed-price project. No surprises, no hourly creep. You know exactly what you're getting and when.
+
+To get started: reply with any questions or say "approved" and I'll send the contract today.
+
+[Your name]`
+    },
+    {
+      title: "The Mini Proposal (Short Gigs)",
+      tag: "Proposal",
+      when: "Smaller project that doesn't warrant a full multi-page proposal.",
+      preview: "Hi [Name],\n\nHere's the quick rundown for [project name]. Keeping it simple since the scope is tight...",
+      body: `Hi [Name],
+
+Here's the quick rundown for [project name]:
+
+What I'll do: [2-3 sentences describing the deliverable]
+Timeline: [X days/weeks] from deposit received
+Investment: $[amount] · 50% upfront, 50% on delivery
+Revisions: [X rounds] included
+
+That's it. No complex contract for something this size — I'll send a simple one-page agreement when you're ready.
+
+Sound good? Just reply "let's do it."
+
+[Your name]`
+    },
+    {
+      title: "The Retainer Proposal",
+      tag: "Proposal",
+      when: "Pitching an ongoing monthly arrangement instead of a one-off project.",
+      preview: "Hi [Name],\n\nBased on the volume of work you mentioned, a monthly retainer would actually serve you better than project-by-project pricing...",
+      body: `Hi [Name],
+
+Based on everything you mentioned on our call, I want to suggest a different structure than a one-off project.
+
+A monthly retainer would give you:
+— Consistent, guaranteed capacity (no more "are you available?" delays)
+— Priority scheduling — you always come first
+— A flat predictable cost with no per-project negotiations
+
+RETAINER STRUCTURE
+[X hours/month] dedicated to [type of work]
+Monthly rate: $[amount] (vs. $[higher rate] if billed per project)
+Minimum commitment: [2-3 months] to get into a rhythm
+
+What's included each month: [list key deliverables or services]
+
+I'm currently accepting [1-2 more] retainer clients. If this structure appeals to you, I'd love to hold a spot.
+
+[Your name]`
+    },
+    {
+      title: "The Clarifying Pre-Proposal",
+      tag: "Proposal",
+      when: "You need more information before sending numbers, but want to frame it professionally.",
+      preview: "Hi [Name],\n\nBefore I send formal numbers, I want to ask a few quick questions to make sure I scope this accurately...",
+      body: `Hi [Name],
+
+Before I send a formal proposal, I want to make sure I scope this accurately — a few quick questions:
+
+1. [Question about timeline / deadline]
+2. [Question about existing assets, content, or tools]
+3. [Question about decision-making — do you need internal approval?]
+4. [Question about budget range, if not already discussed]
+
+Once I have these answers I can put together something precise rather than a ballpark. Shouldn't take more than a few minutes — reply whenever works.
+
+[Your name]`
+    },
+    {
+      title: "The Rush Project Proposal",
+      tag: "Proposal",
+      when: "Client needs something faster than your standard timeline — and you're charging accordingly.",
+      preview: "Hi [Name],\n\nI can accommodate the [X-day] timeline you need. Here's what that looks like and the rush fee involved...",
+      body: `Hi [Name],
+
+I can accommodate the [X-day] turnaround — here's what that looks like:
+
+SCOPE
+[Same scope as otherwise discussed]
+
+RUSH TIMELINE
+[Specific dates — start and delivery]
+
+INVESTMENT
+Standard rate: $[amount]
+Rush fee (priority scheduling + overtime): $[amount]
+Total: $[amount]
+
+The rush fee reflects the rescheduling of other client work and the compressed delivery window. Payment in full upfront for rush projects.
+
+If that works, I can start within [X hours] of receiving payment and the signed agreement.
+
+[Your name]`
+    },
+    {
+      title: "The Discovery Call Invitation",
+      tag: "Proposal",
+      when: "You want to get on a call before sending any numbers — especially for larger engagements.",
+      preview: "Hi [Name],\n\nBefore I put together any numbers, I'd love a 20-minute call to understand your situation properly...",
+      body: `Hi [Name],
+
+Before I put together any numbers, I'd love a 20-minute call to understand the full picture.
+
+Sending a proposal without understanding your goals, constraints, and context usually produces something generic that doesn't actually fit — and I'd rather build something precise.
+
+On the call I'd cover:
+— What you're trying to achieve and by when
+— What's been tried before (and what didn't work)
+— What success looks like for you
+
+Here's my calendar: [Calendly link]
+
+Pick any slot that works — 20 minutes is all I need.
+
+[Your name]`
+    }
+  ],
+
+  followup: [
+    {
+      title: "Day 3 Follow-Up (Warm)",
+      tag: "Follow-up",
+      when: "3 days after sending a proposal or cold email with no response.",
+      preview: "Hi [Name],\n\nJust checking in — did you get a chance to look at what I sent over?...",
+      body: `Hi [Name],
+
+Just checking in — did you get a chance to look at the [proposal / email] I sent on [day]?
+
+No pressure at all, just want to make sure it didn't get buried. Happy to answer any questions or tweak anything if needed.
+
+[Your name]`
+    },
+    {
+      title: "Day 7 Follow-Up (Adding Value)",
+      tag: "Follow-up",
+      when: "One week after your proposal or pitch with no response. Lead with something useful.",
+      preview: "Hi [Name],\n\nFollowing up on my last email — and sharing something relevant while I'm here...",
+      body: `Hi [Name],
+
+Following up on the proposal I sent last week — and sharing something you might find useful while I'm here.
+
+I came across [relevant article / stat / example] about [their industry/problem]. Thought it might be timely given what you're working on.
+
+[1-2 sentence summary of the resource]
+
+Still happy to chat about [the project] whenever the timing makes sense for you.
+
+[Your name]`
+    },
+    {
+      title: "Day 14 Follow-Up (The Last Touch)",
+      tag: "Follow-up",
+      when: "Final follow-up — two weeks in, still no response. Non-needy, leaves door open.",
+      preview: "Hi [Name],\n\nI'll keep this short — I'm going to assume the timing isn't right and won't follow up again after this...",
+      body: `Hi [Name],
+
+I'll keep this short. I've reached out a couple of times about [project / proposal] and haven't heard back — which usually means the timing isn't right.
+
+I'm not going to follow up again after this, but I did want to leave the door open: if the situation changes or [specific need] becomes a priority in the future, I'd be glad to pick the conversation back up.
+
+Either way, I genuinely hope things go well with [their business/project].
+
+[Your name]`
+    },
+    {
+      title: "The Ghosted-After-Call Follow-Up",
+      tag: "Follow-up",
+      when: "Had a great discovery call, sent proposal, and then... nothing. Radio silence.",
+      preview: "Hi [Name],\n\nWe had a great call on [date] and I sent over the proposal shortly after — haven't heard back...",
+      body: `Hi [Name],
+
+We had a great call on [date] and I've sent over the proposal — haven't heard back since and I want to make sure everything's okay.
+
+A few possibilities I want to address:
+
+The budget felt off? I can restructure the scope.
+The timeline doesn't work? We can shift it.
+Something came up internally? Happy to revisit later.
+
+Or if you've gone in a different direction — totally fine, just let me know so I can close this out on my end.
+
+Either way, I'd love a quick reply so I'm not left guessing.
+
+[Your name]`
+    },
+    {
+      title: "The Re-engagement (Past Client)",
+      tag: "Follow-up",
+      when: "Reaching back out to a client you worked with 3-12 months ago.",
+      preview: "Hi [Name],\n\nIt's been a while since we wrapped up [project]. I've been thinking about what you're building and wanted to check in...",
+      body: `Hi [Name],
+
+It's been a few months since we wrapped up [project name]. I've thought about your business a few times since then — especially when I saw [relevant industry development or news].
+
+How has [the thing you worked on] been performing? And is there anything new on the horizon I could help with?
+
+I have some availability opening up in [month] and I'd love to work together again if the timing lines up.
+
+[Your name]`
+    },
+    {
+      title: "The Quote Expiry Nudge",
+      tag: "Follow-up",
+      when: "Your proposal has an expiry date and it's approaching — creates genuine urgency.",
+      preview: "Hi [Name],\n\nQuick note — the pricing in my proposal expires on [date]. After that I'll need to re-quote based on my current rate...",
+      body: `Hi [Name],
+
+Quick note — the pricing I quoted expires on [date in 2-3 days]. After that point I'll need to revise based on my current availability and rates.
+
+I wanted to flag it so it doesn't catch you off guard. If you're still interested, now's the time to lock it in. If the timing doesn't work, I completely understand — just let me know.
+
+[Your name]`
+    }
+  ],
+
+  scope: [
+    {
+      title: "The Professional Scope Boundary",
+      tag: "Scope Creep",
+      when: "Client adds a new request that's clearly outside the agreed scope. First time it happens.",
+      preview: "Hi [Name],\n\nHappy to help with [new request] — I want to flag that this sits outside our original scope...",
+      body: `Hi [Name],
+
+Happy to help with [new request] — just want to flag that this sits outside our original project scope, which covered [brief summary of what was agreed].
+
+I can add this in two ways:
+1. As an addition to this project: $[amount] / [X hours]
+2. As a separate mini-project after we wrap this one
+
+Which would you prefer? I'm flexible on the approach — just want to make sure we're aligned before I dive in.
+
+[Your name]`
+    },
+    {
+      title: "The Gentle Scope Reset",
+      tag: "Scope Creep",
+      when: "Scope has gradually expanded over several weeks. Time to have the 'reset' conversation.",
+      preview: "Hi [Name],\n\nI want to have a quick honest conversation about where we are with the project scope...",
+      body: `Hi [Name],
+
+I want to have a quick, honest conversation about the project scope.
+
+When we started, we agreed on [original scope summary]. Since then, we've also added [list of additions — "the extra landing page, the revised pricing section, the three rounds of copy edits"].
+
+I've absorbed a lot of this because I wanted to deliver something great and the relationship matters to me. But I've reached the point where I need to either adjust the scope formally or the budget needs to reflect the extra work.
+
+Can we jump on a quick 15-minute call this week to get aligned? I want to finish this on a good note.
+
+[Your name]`
+    },
+    {
+      title: "The Revision Limit Reminder",
+      tag: "Scope Creep",
+      when: "Client has requested more revision rounds than the contract allows.",
+      preview: "Hi [Name],\n\nJust a heads-up — we've now completed [X] rounds of revisions, which is the number included in our agreement...",
+      body: `Hi [Name],
+
+Just a heads-up — we've now completed [X] rounds of revisions, which is what our agreement includes.
+
+I'm genuinely happy to keep refining this until it's right. Additional revision rounds are billed at $[hourly rate]/hour or $[flat fee] per round.
+
+Let me know how you'd like to handle it — and once we're aligned, I'll incorporate the latest feedback immediately.
+
+[Your name]`
+    },
+    {
+      title: "The Rush Add-On Response",
+      tag: "Scope Creep",
+      when: "Client suddenly needs something faster than originally agreed without acknowledging the cost.",
+      preview: "Hi [Name],\n\nI want to make [new deadline] work for you — here's what that requires on my end...",
+      body: `Hi [Name],
+
+I want to make [new deadline] work for you — here's what it requires on my end.
+
+Accelerating from [original deadline] to [new deadline] means [rescheduling other work / working evenings / pulling in additional resource]. I can do it, but it comes with a rush fee of $[amount].
+
+Alternatively, we could prioritize [most important deliverable] by [new deadline] and deliver [secondary item] on the original [original date] timeline — at no extra cost.
+
+Which works better?
+
+[Your name]`
+    },
+    {
+      title: "The 'Just One More Thing' Response",
+      tag: "Scope Creep",
+      when: "Client repeatedly adds small requests that feel harmless individually but add up.",
+      preview: "Hi [Name],\n\nHappy to do [the latest small request]. I did want to flag something before we go further though...",
+      body: `Hi [Name],
+
+Happy to take care of [latest request].
+
+I did want to flag something while I have you: we've added quite a few smaller items over the course of this project — [brief examples]. Individually they're quick, but together they add up to meaningful extra time.
+
+Going forward, can we agree to log additional requests and review them together at [project check-in day] rather than handling them ad hoc? It'll help us both track what's in and out of scope.
+
+Completely open to adjusting the overall budget too if the scope has genuinely grown — just want to be transparent rather than let it build up silently.
+
+[Your name]`
+    }
+  ],
+
+  invoice: [
+    {
+      title: "Invoice Sent (Friendly)",
+      tag: "Invoice",
+      when: "Sending an invoice after completing a milestone or project.",
+      preview: "Hi [Name],\n\nGreat news — [milestone/project] is complete. I've attached the invoice for [amount]...",
+      body: `Hi [Name],
+
+[Milestone / Project name] is wrapped up and I've attached the invoice for $[amount].
+
+Payment is due by [date — typically net 14 or net 30]. You can pay via [Stripe link / bank transfer / PayPal / etc.].
+
+Let me know if you have any questions about the invoice or the work. It was a pleasure working on this with you.
+
+[Your name]`
+    },
+    {
+      title: "Friendly Payment Reminder (Day After Due)",
+      tag: "Invoice",
+      when: "Invoice is 1-2 days overdue. Assume best intent — probably just forgot.",
+      preview: "Hi [Name],\n\nJust a friendly nudge — invoice #[number] for $[amount] was due [date]...",
+      body: `Hi [Name],
+
+Just a quick nudge — invoice #[number] for $[amount] was due on [date]. It happens — inboxes get busy.
+
+Here's the payment link again for convenience: [link]
+
+Let me know if there's any issue with the invoice or if you need a different payment method.
+
+[Your name]`
+    },
+    {
+      title: "Firm Payment Reminder (1-2 Weeks Late)",
+      tag: "Invoice",
+      when: "Invoice is 1-2 weeks overdue. More direct while still professional.",
+      preview: "Hi [Name],\n\nInvoice #[number] for $[amount] is now [X] days past due. I'd appreciate payment as soon as possible...",
+      body: `Hi [Name],
+
+Invoice #[number] for $[amount] is now [X] days past its due date of [date].
+
+I'd appreciate payment as soon as possible. If there's an issue on your end — whether it's approval process, cash flow, or a question about the invoice — please let me know directly so we can work something out.
+
+Payment link: [link]
+
+I'll need to pause any current or upcoming work until this is resolved.
+
+[Your name]`
+    },
+    {
+      title: "Final Notice (30+ Days Late)",
+      tag: "Invoice",
+      when: "Invoice is 30+ days overdue and previous reminders have gone unanswered.",
+      preview: "Hi [Name],\n\nThis is a final notice regarding invoice #[number] for $[amount], now [X] days overdue...",
+      body: `Hi [Name],
+
+This is a formal final notice for invoice #[number] for $[amount], which is now [X] days overdue.
+
+I've sent [X] previous reminders without a response. If I don't receive payment or hear from you by [specific date — 5-7 days from now], I'll need to escalate this, which may include:
+— Referral to a collections service
+— Legal action for recovery of the outstanding amount
+— Reporting to relevant freelancer protection organizations
+
+I want to resolve this amicably. If you have a genuine issue, please reply immediately so we can find a solution.
+
+[Your name]`
+    },
+    {
+      title: "Payment Plan Offer",
+      tag: "Invoice",
+      when: "Client signals they're having cash flow issues — offer a structured payment plan.",
+      preview: "Hi [Name],\n\nI appreciate you being honest about the cash flow situation. Here's a payment plan I can work with...",
+      body: `Hi [Name],
+
+I appreciate you letting me know what's going on — that's the right way to handle it and I respect it.
+
+Here's a payment plan I can offer:
+
+Payment 1: $[amount] by [date]
+Payment 2: $[amount] by [date]
+Payment 3: $[amount] by [date]
+
+Total: $[original invoice amount]
+
+If you're able to pay in full by [date], I'm happy to offer a [5-10%] early payment discount as a gesture of goodwill.
+
+Let me know if the schedule above works and I'll put together a quick payment plan agreement.
+
+[Your name]`
+    },
+    {
+      title: "Deposit Request (Before Starting)",
+      tag: "Invoice",
+      when: "Project is confirmed and you need the upfront deposit before beginning work.",
+      preview: "Hi [Name],\n\nExcited to get started on [project]. I've attached the deposit invoice for $[amount] to kick things off...",
+      body: `Hi [Name],
+
+Excited to kick this off! As outlined in our agreement, I require a 50% deposit before work begins.
+
+I've attached the deposit invoice for $[amount].
+
+Once received, I'll [confirm the start date / send the project brief / schedule our kickoff call] within 24 hours.
+
+Payment link: [link]
+Or bank transfer: [details]
+
+[Your name]`
+    }
+  ],
+
+  closeout: [
+    {
+      title: "Project Wrap + Review Ask",
+      tag: "Closeout",
+      when: "Project is complete. Deliver final files, close gracefully, and ask for a testimonial.",
+      preview: "Hi [Name],\n\nWe're officially wrapped! Final files are attached / linked below. It was a genuine pleasure...",
+      body: `Hi [Name],
+
+We're officially done! Final [files / deliverables] are [attached / linked here: URL].
+
+[Brief 2-sentence reflection on what you delivered and why you're proud of it]
+
+Working with you on this was genuinely enjoyable — I appreciated [something specific about working with them].
+
+One small ask: if you're happy with the work, would you mind leaving a short testimonial? Even 2-3 sentences on [Google / LinkedIn / your platform of choice] would mean a lot. Here's the link: [link]
+
+Looking forward to hopefully working together again.
+
+[Your name]`
+    },
+    {
+      title: "The Referral Request",
+      tag: "Closeout",
+      when: "Strong project end — client is happy. Best time to ask for referrals.",
+      preview: "Hi [Name],\n\nWrapping up this project has me thinking — do you know anyone else who might benefit from this type of work?...",
+      body: `Hi [Name],
+
+Now that we've wrapped up [project], I want to ask something while the experience is fresh.
+
+I build my business almost entirely through referrals from happy clients. If you know anyone — a founder, colleague, or friend — who might benefit from [what you do], I'd be genuinely grateful if you'd pass my name along.
+
+You don't need to do anything formal — just "you should talk to [Your Name]" is enough.
+
+And of course, if there's anyone in my network I can connect you with in return, say the word.
+
+Thanks again for trusting me with this work.
+
+[Your name]`
+    },
+    {
+      title: "The Future Work Setup",
+      tag: "Closeout",
+      when: "Project done and you want to prime them for Phase 2 or ongoing work without being pushy.",
+      preview: "Hi [Name],\n\nGreat working together on [project]. A few ideas are already forming in my head for what could come next...",
+      body: `Hi [Name],
+
+Glad we got [project] across the finish line — genuinely proud of how it came together.
+
+A few ideas are already forming in my head for what could logically come next:
+
+— [Idea 1: Natural extension of current work]
+— [Idea 2: Related problem you noticed along the way]
+— [Idea 3: Something they mentioned wanting eventually]
+
+No pressure at all — just wanted to plant the seed. If any of those feel timely, I'd love to explore further.
+
+Either way, I'm here when you need me.
+
+[Your name]`
+    },
+    {
+      title: "The Offboarding + Handoff",
+      tag: "Closeout",
+      when: "Complex project where the client needs a clear handoff document and guidance on next steps.",
+      preview: "Hi [Name],\n\nHere's everything you need to take it from here — a full handoff so nothing is left ambiguous...",
+      body: `Hi [Name],
+
+Here's your full project handoff — everything you need to take it from here.
+
+WHAT'S BEEN DELIVERED
+[List of all final deliverables with links/file names]
+
+HOW TO USE IT
+[Brief instructions — e.g., "The Notion database is organized by category. Click any card to see the full template."]
+
+IMPORTANT NOTES
+— [Key thing to know — e.g., "Passwords are in the shared 1Password vault"]
+— [Any dependency or limitation they should know about]
+— [What not to change and why]
+
+IF SOMETHING BREAKS OR YOU HAVE QUESTIONS
+Feel free to email me for [X weeks] post-handoff for any questions at no charge. After that, I offer [hourly support / a maintenance retainer].
+
+It was a real pleasure. Best of luck with the launch.
+
+[Your name]`
+    }
+  ]
+};
+
+const AI_PROMPTS = [
+  { title: "Custom Cold Email Generator", text: "You are an expert freelance copywriter. Write a cold outreach email for a [your specialty] freelancer targeting [specific niche client]. The email should be under 120 words, lead with a specific observation about their business, and end with a low-friction CTA. Tone: confident but not aggressive. Do not use generic phrases like 'I hope this email finds you well.'" },
+  { title: "Proposal Customizer", text: "Here is my standard project proposal: [paste template]. Now customize it for a client who is [describe client: industry, company size, specific project, what they said on the call]. Make it feel bespoke without changing the overall structure. Highlight the parts most relevant to their specific situation." },
+  { title: "Scope Creep Boundary Script", text: "A client is asking me to [describe new request] but our original agreement only covered [original scope]. Write a professional email that declines to add this for free, explains the additional cost of $[X], and keeps the relationship warm. Tone: firm but collaborative. Do not be passive-aggressive." },
+  { title: "Follow-Up Sequence (3 Emails)", text: "Write a 3-email follow-up sequence for a freelancer who sent a proposal to [type of client] and hasn't heard back. Email 1 (Day 3): warm check-in. Email 2 (Day 7): add value with a relevant insight. Email 3 (Day 14): final non-needy close. Each email should be under 80 words." },
+  { title: "Invoice Dispute Handler", text: "A client is disputing my invoice, claiming [their specific objection]. Write a calm, professional email that: (1) acknowledges their concern, (2) cites the original agreement, (3) offers a fair resolution, and (4) maintains the professional relationship. Do not be defensive or apologetic." },
+  { title: "Testimonial Request Rewriter", text: "Rewrite this testimonial request email to be more natural and less transactional: [paste current email]. The goal is to make the client feel appreciated, not pressured. Keep it under 100 words." },
+  { title: "Rate Increase Announcement", text: "Write an email announcing a [X%] rate increase to an existing client I've worked with for [timeframe]. The new rate takes effect [date]. Make it confident, explain the value I've delivered, and give them a path to lock in current rates before the deadline. Tone: professional, not apologetic." },
+  { title: "Niche Cold Email Variants", text: "Take this cold email template: [paste template]. Now write 3 variations targeting: (1) e-commerce brands, (2) SaaS companies, (3) local service businesses. Each version should feel native to that industry — use their language, reference their typical problems, and adjust the social proof accordingly." },
+  { title: "Difficult Client Response", text: "A client sent me this email: [paste their email]. They are [describe tone: upset / unreasonable / confused / demanding]. Write a professional response that: addresses their concern directly, sets a clear boundary if needed, and de-escalates the situation. Do not be sycophantic or overly apologetic." },
+  { title: "Project Kickoff Email", text: "Write a project kickoff email for a [type of project] starting [date]. Include: a warm opener, confirmation of scope and timeline, what I need from them to start, and communication norms (how often we'll check in, preferred channels). Tone: organized and excited." },
+  { title: "Referral Thank-You + Ask", text: "Write a thank-you email to a client who referred me to someone new. The referral resulted in [outcome — e.g., 'a new project' or 'a discovery call']. Make it personal and warm, express genuine gratitude, and subtly invite future referrals without being transactional about it." },
+  { title: "Contract Dispute Opener", text: "Write a professional email opening a conversation about a contract dispute with a client who [describe situation]. The goal of this email is to: state the issue clearly, reference the relevant contract clause, propose a resolution, and keep the tone collaborative rather than adversarial." },
+  { title: "Cold DM (LinkedIn/Instagram)", text: "Write a cold DM for [platform] to a [type of prospect]. Maximum 60 words. The message should feel human and direct, reference something specific about them, and end with a yes/no question. Do not use emojis or hashtags. Do not pitch in the first message." },
+  { title: "Client Onboarding Email", text: "Write a client onboarding email sent right after contract signing for a [type of project]. Include: a warm welcome, the first 3 steps they need to take, what to expect in the first week, and how to reach me. Tone: warm, organized, confidence-building." },
+  { title: "Project Delay Notification", text: "Write an email notifying a client that [project/deliverable] will be delayed by [X days] due to [reason — be honest but professional]. Include: what caused the delay, the new timeline, what I'm doing to minimize impact, and an apology that doesn't grovel. Keep it under 100 words." },
+  { title: "Sub-contractor Pitch to Agency", text: "Write a cold email pitching my freelance [specialty] services to a [type] agency as a subcontractor. Emphasize: reliability, specialized skill, no internal overhead, and that I make their team look good. Under 120 words. Reference that I've done sub work before and understand how agencies operate." },
+  { title: "Value-First Check-In (Warm Lead)", text: "Write a check-in email to a warm lead I spoke with [X weeks/months] ago. We had a good call but they went quiet. Lead with a genuinely useful insight or resource related to [their industry/problem] before mentioning our conversation. Keep the ask soft — just checking if the timing has changed." },
+  { title: "Project Proposal From Bullet Points", text: "Turn these rough bullet points into a polished project proposal email: [paste your notes]. Format it with: a brief opening, scope summary, timeline, investment, and next steps. Tone should be confident and clear. Do not use jargon. Keep total length under 300 words." },
+  { title: "Testimonial to Case Study Expander", text: "Here is a client testimonial: [paste testimonial]. Expand this into a 200-word case study paragraph for my website that covers: the client's situation before working with me, what I did, and the result. Write it in third person. Make the outcome concrete and specific." },
+  { title: "Email Subject Line Generator", text: "Write 10 subject line options for this email: [paste email body]. Mix styles: some direct, some curiosity-driven, some specific with numbers, some conversational. Avoid clickbait. The goal is to get a busy founder or manager to open the email within 24 hours." }
+];
+
+let currentTemplate = null;
+let activeCategory = 'all';
+
+function renderAll() {
+  const categories = ['cold', 'proposal', 'followup', 'scope', 'invoice', 'closeout'];
+  categories.forEach(cat => {
+    const grid = document.getElementById(`grid-${cat}`);
+    const templates = TEMPLATES[cat] || [];
+    grid.innerHTML = templates.map((t, i) => renderCard(t, cat, i)).join('');
+  });
+
+  // Render AI prompts
+  const pgrid = document.getElementById('grid-prompts');
+  pgrid.innerHTML = AI_PROMPTS.map((p, i) => `
+    <div class="prompt-card">
+      <div class="prompt-number">${String(i+1).padStart(2,'0')}</div>
+      <div class="prompt-title">${p.title}</div>
+      <div class="prompt-text">${p.text.substring(0, 120)}...</div>
+      <button class="prompt-copy" onclick="copyPrompt(${i}, this)">Copy Prompt</button>
+    </div>
+  `).join('');
+}
+
+function renderCard(t, category, index) {
+  return `
+    <div class="card" onclick="openModal('${category}', ${index})">
+      <div class="card-header">
+        <div class="card-title">${t.title}</div>
+        <div class="card-tag">${t.tag}</div>
+      </div>
+      <div class="card-preview">${t.preview}</div>
+      <div class="card-footer">
+        <span class="card-meta">Click to view full template</span>
+        <button class="copy-btn" onclick="event.stopPropagation(); copyCard('${category}', ${index}, this)">Copy</button>
+      </div>
+    </div>
+  `;
+}
+
+function openModal(category, index) {
+  const t = TEMPLATES[category][index];
+  currentTemplate = t;
+  document.getElementById('modal-tag').textContent = t.tag;
+  document.getElementById('modal-title').textContent = t.title;
+  document.getElementById('modal-when').textContent = t.when;
+  
+  // Render body with highlighted placeholders
+  const highlighted = t.body.replace(/\[([^\]]+)\]/g, '<span class="placeholder">[$1]</span>');
+  document.getElementById('modal-body-text').innerHTML = highlighted;
+  
+  const copyBtn = document.getElementById('modal-copy-btn');
+  copyBtn.textContent = 'Copy Template';
+  copyBtn.className = 'btn-primary';
+  
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(event) {
+  if (event.target === document.getElementById('modal')) closeModalDirect();
+}
+
+function closeModalDirect() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function copyFromModal() {
+  if (!currentTemplate) return;
+  navigator.clipboard.writeText(currentTemplate.body).then(() => {
+    const btn = document.getElementById('modal-copy-btn');
+    btn.textContent = '✓ Copied!';
+    btn.className = 'btn-primary copied';
+    showToast();
+    setTimeout(() => {
+      btn.textContent = 'Copy Template';
+      btn.className = 'btn-primary';
+    }, 2000);
+  });
+}
+
+function copyCard(category, index, btn) {
+  const t = TEMPLATES[category][index];
+  navigator.clipboard.writeText(t.body).then(() => {
+    btn.textContent = '✓';
+    btn.className = 'copy-btn copied';
+    showToast();
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.className = 'copy-btn';
+    }, 2000);
+  });
+}
+
+function copyPrompt(index, btn) {
+  navigator.clipboard.writeText(AI_PROMPTS[index].text).then(() => {
+    btn.textContent = '✓ Copied';
+    btn.className = 'prompt-copy copied';
+    showToast();
+    setTimeout(() => {
+      btn.textContent = 'Copy Prompt';
+      btn.className = 'prompt-copy';
+    }, 2000);
+  });
+}
+
+function showToast() {
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+function filterByCategory(cat, btn) {
+  activeCategory = cat;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+
+  const sections = ['cold','proposal','followup','scope','invoice','closeout','prompts'];
+  sections.forEach(s => {
+    const el = document.getElementById(`section-${s}`);
+    if (cat === 'all' || cat === s) {
+      el.classList.add('visible');
+      el.style.display = 'block';
+    } else {
+      el.classList.remove('visible');
+      el.style.display = 'none';
+    }
+  });
+
+  document.getElementById('search').value = '';
+  showAllCards();
+}
+
+function showAllCards() {
+  document.querySelectorAll('.card').forEach(c => c.style.display = '');
+  document.querySelectorAll('.prompt-card').forEach(c => c.style.display = '');
+  document.getElementById('empty-state').style.display = 'none';
+}
+
+function filterTemplates() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  
+  if (!q) { showAllCards(); return; }
+
+  // Show all sections during search
+  document.querySelectorAll('.section-group').forEach(s => s.style.display = 'block');
+
+  let totalVisible = 0;
+
+  // Filter template cards
+  document.querySelectorAll('.card').forEach(card => {
+    const text = card.innerText.toLowerCase();
+    card.style.display = text.includes(q) ? '' : 'none';
+    if (text.includes(q)) totalVisible++;
+  });
+
+  // Filter prompt cards
+  document.querySelectorAll('.prompt-card').forEach(card => {
+    const text = card.innerText.toLowerCase();
+    card.style.display = text.includes(q) ? '' : 'none';
+    if (text.includes(q)) totalVisible++;
+  });
+
+  document.getElementById('empty-state').style.display = totalVisible === 0 ? 'block' : 'none';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModalDirect();
+});
+
+renderAll();
+</script>
+</body>
+</html>
